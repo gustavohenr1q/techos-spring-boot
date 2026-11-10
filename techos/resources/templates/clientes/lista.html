@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <title>Painel TechOS</title>
+    <link rel="shortcut icon" href="../img/t-junction-32x32.png" type="image/x-icon">
+
+    <!-- CSS BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- CSS INTERNO -->
+    <link rel="stylesheet" href="../../static/css/style.css">
+
+</head>
+
+<body>
+
+    <!-- Menu igual em todas as páginas-->
+    <div class="container-fluid">
+
+        <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <img src="../img/t-junction-64x64.png" alt="">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" aria-current="page" href="#">Painel</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active border-bottom border-primary border-3" href="#">Clientes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Equipamentos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Ordem de serviço</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav><!-- FIM DO NAVBAR -->
+
+        <!-- ALERTAS SUCESSO E FALHA -->
+        <div class="container mt-3">
+            <div class="alert alert-success" role="alert">
+                <b>Salvo com sucesso!</b>
+            </div>
+            <div class="alert alert-danger" role="alert">
+                <b>Algo deu errado.</b> Tente novamente!
+            </div>
+        </div><!-- FIM DOS ALERTAS SUCESSO E FALHA -->
+
+
+        <!-- CONTEÚDO DA TELA-->
+        <main class="container py-3">
+
+           <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <h1 class="h3">Clientes</h1>
+            <a href="" class="btn btn-success">+ Novo Cliente</a>
+
+           </div>
+
+           <form class="row">
+
+            <div class="col-12 col-sm-8 col-md-5">
+                <input type="search" name="buscar" class="form-control" placeholder="Buscar por nome" aria-label="Buscar cliente">
+            </div>
+
+            <div class="col-auto">
+                <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+            </div>
+
+           </form>
+
+            
+        
+    </main>
+
+
+
+
+    <!-- SCRIPT BOOTSTRAP -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <!-- FIM SCRIPT BOOTSTRAP -->
+
+</body>
+
+</html>

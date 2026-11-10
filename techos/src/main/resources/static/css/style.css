@@ -1,0 +1,294 @@
+@charset "UTF-8";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* TechOS — estilos mínimos por cima do Bootstrap 5.3 */
+:root{
+  --ink:#14202B;
+  --bench:#F2F4F6;
+  --line:#E2E7EC;
+  --muted:#667785;
+  --signal:#0F8B8D;
+  --signal-dark:#0B6F71;
+}
+body{
+  background:var(--bench);
+  color:#1B2733;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+a{color:var(--signal-dark)}
+
+/* botões e foco na cor do sistema */
+.btn-primary{
+  --bs-btn-bg:var(--signal);--bs-btn-border-color:var(--signal);
+  --bs-btn-hover-bg:var(--signal-dark);--bs-btn-hover-border-color:var(--signal-dark);
+  --bs-btn-active-bg:var(--signal-dark);--bs-btn-active-border-color:var(--signal-dark);
+  --bs-btn-disabled-bg:var(--signal);--bs-btn-disabled-border-color:var(--signal);
+}
+.form-control:focus,.form-select:focus{
+  border-color:var(--signal);
+  box-shadow:0 0 0 .2rem rgba(15,139,141,.2);
+}
+
+/* navbar */
+.navbar-techos{
+    background:var(--ink)
+}
+
+.navbar-techos .navbar-brand{
+    font-weight:700;
+    letter-spacing:.2px;
+    display:flex;
+    align-items:center;
+    gap:.55rem
+}
+
+.brand-mark{
+  display:inline-grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  background:var(--signal);
+  color:#fff;font-weight:800;
+  font-size:.95rem;
+}
+
+.navbar-techos .nav-link{
+    padding:.65rem .9rem
+}
+
+.navbar-techos .nav-link.active{
+    color:#fff;
+    box-shadow:inset 0 -2px 0 var(--signal)
+}
+
+/* cabeçalho de página */
+.page-head{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.75rem;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:1.25rem;
+}
+
+.page-head h1{
+    margin:0
+}
+
+/* painel branco (tabelas, formulários, detalhes) */
+.panel{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.panel-body{
+	padding:1.25rem
+	}
+	
+.panel .table{
+	--bs-table-bg:transparent;margin-bottom:0
+	}
+	
+.panel .table thead th{
+  background:#F8FAFB;
+  color:var(--muted);
+  font-weight:600;
+  font-size:.85rem;
+  border-bottom:1px solid var(--line);
+  white-space:nowrap;
+}
+.panel .table td,.panel .table th{
+	padding:.8rem 1rem
+	}
+	
+.empty{
+	padding:2.5rem 1.25rem;
+	text-align:center}
+
+/* cartões do painel */
+.stat{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:1rem 1.15rem;
+  height:100%;display:flex;
+  flex-direction:column;
+  gap:.15rem;
+}
+.stat-label{
+	color:var(--muted);
+	font-size:.85rem;
+	}
+	
+.stat-value{
+	font-size:1.9rem;
+	font-weight:700;
+	line-height:1.15
+	}
+	
+.stat-main{
+	background:var(--ink);
+	border-color:var(--ink);
+	color:#fff
+	}
+	
+.stat-main .stat-label{
+	color:#A9BAC7
+	}
+	
+.stat-main .stat-value{
+	font-size:2.3rem;color:#fff
+	}
+	
+.stat-main::after{
+	content:"";
+	display:block;
+	height:3px;width:44px;
+	margin-top:.6rem;
+	border-radius:3px;
+	background:var(--signal)
+	}
+
+/* status da OS */
+.badge-status{
+  display:inline-block;
+  padding:.2rem .65rem;
+  border-radius:999px;
+  font-size:.78rem;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.st-RECEBIDO{
+	background:#E8EDF2;
+	color:#3D4F5F
+	}
+	
+.st-EM_ANALISE{
+	background:#FFF1D6;
+	color:#8A5A00
+	}
+	
+.st-EM_MANUTENCAO{
+	background:#DCEBFF;
+	color:#1A4F96
+	}
+	
+.st-CONCLUIDO{
+	background:#D9F3E6;
+	color:#136C3D
+	}
+	
+.st-ENTREGUE{
+	background:var(--ink);
+	color:#fff
+	}
+
+/* trilho do status (detalhe da OS) */
+.trilho{
+	display:flex;
+	list-style:none;
+	padding:0;
+	margin:0
+	}
+	
+.trilho li{
+  flex:1;
+  position:relative;
+  text-align:center;
+  padding-top:28px;
+  font-size:.78rem;
+  color:var(--muted);
+}
+
+.trilho li::before{
+  content:"";
+  position:absolute;
+  top:6px;
+  left:50%;
+  width:14px;
+  height:14px;
+  margin-left:-7px;
+  border-radius:50%;
+  background:#fff;
+  border:2px solid var(--line);
+  z-index:1;
+}
+
+.trilho li::after{
+  content:"";
+  position:absolute;
+  top:12px;left:-50%;
+  width:100%;
+  height:2px;
+  background:var(--line);
+}
+
+.trilho li:first-child::after{
+	display:none
+	}
+	
+.trilho li.feito{
+	color:var(--ink)
+	}
+	
+.trilho li.feito::before{
+	background:var(--signal);
+	border-color:var(--signal)
+	}
+	
+.trilho li.feito::after{
+	background:var(--signal)
+}
+
+.trilho li.atual{
+	font-weight:700
+	}
+
+/* detalhe: lista de dados */
+.dados{
+	display:grid;
+	grid-template-columns:max-content 1fr;
+	gap:.55rem 1.25rem;
+	margin:0
+	}
+	
+.dados dt{
+	color:var(--muted);
+	font-weight:500
+	}
+	
+.dados dd{
+	margin:0
+	}
+
+@media (max-width:575.98px){
+  .stat-value{
+	  font-size:1.5rem
+	  }
+	  
+  .stat-main .stat-value{
+	  font-size:1.9rem
+	  }
+	  
+  .trilho li{
+	  font-size:.68rem
+	  }
+	  
+  .dados{
+	  grid-template-columns:1fr;
+	  gap:.1rem
+	  }
+	  
+  .dados dd{
+	  margin-bottom:.6rem
+	  }
+}
