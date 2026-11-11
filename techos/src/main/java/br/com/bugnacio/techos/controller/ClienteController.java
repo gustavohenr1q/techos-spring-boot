@@ -49,6 +49,7 @@ public class ClienteController {
 
         } else {
             model.addAttribute("clientes", repo.findAll(Sort.by("nome")));
+            
 
         }
 
