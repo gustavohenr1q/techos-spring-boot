@@ -1,13 +1,17 @@
+
 package br.com.bugnacio.techos.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Equipamento {
@@ -16,8 +20,10 @@ public class Equipamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O tipo do equipamento é obrigatório")
-    private String tipo;
+    @NotNull(message = "O tipo do equipamento é obrigatório")
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private TipoEquipamento tipo;
 
     @NotBlank(message = "A marca do equipamento é obrigatória")
     private String marca;
@@ -29,12 +35,11 @@ public class Equipamento {
     private String numeroSerie;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
     // Construtor padrão
     public Equipamento() {
-
     }
 
     public Long getId() {
@@ -45,11 +50,11 @@ public class Equipamento {
         this.id = id;
     }
 
-    public String getTipo() {
+    public TipoEquipamento getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    public void setTipo(TipoEquipamento tipo) {
         this.tipo = tipo;
     }
 

@@ -1,87 +1,228 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Equipamentos · TechOS</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <link rel="stylesheet" href="../../static/css/techos.css" th:href="@{/css/techos.css}">
 </head>
+
 <body>
 
-<!-- MENU (igual em todas as telas) -->
-<nav class="navbar navbar-expand-lg navbar-techos sticky-top" data-bs-theme="dark">
-  <div class="container-xl">
-    <a class="navbar-brand" href="#" th:href="@{/}"><span class="brand-mark">T</span>TechOS</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal" aria-label="Abrir menu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="menuPrincipal">
-      <ul class="navbar-nav ms-lg-3">
-        <li class="nav-item"><a class="nav-link" href="#" th:href="@{/}">Painel</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" th:href="@{/clientes}">Clientes</a></li>
-        <li class="nav-item"><a class="nav-link active" href="#" th:href="@{/equipamentos}">Equipamentos</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" th:href="@{/os}">Ordens de serviço</a></li>
-      </ul>
+  <!-- MENU -->
+  <nav class="navbar navbar-expand-lg navbar-techos sticky-top" data-bs-theme="dark">
+
+    <div class="container-xl">
+
+      <a class="navbar-brand" href="#" th:href="@{/}">
+        <span class="brand-mark">T</span>TechOS
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+        aria-label="Abrir menu">
+
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="menuPrincipal">
+
+        <ul class="navbar-nav ms-lg-3">
+
+          <li class="nav-item">
+            <a class="nav-link" href="#" th:href="@{/}">Painel</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#" th:href="@{/clientes}">Clientes</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link active" href="#" th:href="@{/equipamentos}">
+              Equipamentos
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#" th:href="@{/os}">
+              Ordens de serviço
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<!-- AVISOS (só aparecem se o Controller mandar "mensagem" ou "erro") -->
-<div class="container-xl pt-3">
-  <div class="alert alert-success mb-0" th:if="${mensagem != null}" th:text="${mensagem}">Salvo com sucesso.</div>
-  <div class="alert alert-danger mb-0" th:if="${erro != null}" th:text="${erro}">Algo deu errado.</div>
-</div>
+  <!-- AVISOS -->
+  <div class="container-xl pt-3">
 
-<!-- CONTEÚDO DA TELA -->
-<main class="container-xl py-4">
-
-  <div class="page-head">
-    <h1 class="h3">Equipamentos</h1>
-    <a class="btn btn-primary" th:href="@{/equipamentos/novo}">Novo equipamento</a>
-  </div>
-
-  <div class="panel" th:if="${equipamentos.isEmpty()}">
-    <div class="empty">
-      <p class="fw-semibold mb-1">Nenhum equipamento cadastrado</p>
-      <p class="text-secondary">Cadastre o aparelho e ligue ao cliente dono dele.</p>
-      <a class="btn btn-primary" th:href="@{/equipamentos/novo}">Cadastrar equipamento</a>
+    <div class="alert alert-success mb-0" th:if="${mensagem != null}" th:text="${mensagem}">
+      Salvo com sucesso.
     </div>
-  </div>
 
-  <div class="panel" th:unless="${equipamentos.isEmpty()}">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle">
-        <thead>
-          <tr>
-            <th>Tipo</th>
-            <th>Marca e modelo</th>
-            <th class="d-none d-md-table-cell">Nº de série</th>
-            <th>Cliente</th>
-            <th class="text-end">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="e : ${equipamentos}">
-            <td th:text="${e.tipo}">NOTEBOOK</td>
-            <td class="fw-semibold" th:text="${e.marca} + ' ' + ${e.modelo}">Dell Inspiron</td>
-            <td class="d-none d-md-table-cell" th:text="${e.numeroSerie}">ABC123</td>
-            <td th:text="${e.cliente.nome}">Maria Souza</td>
-            <td class="text-end text-nowrap">
-              <a class="btn btn-sm btn-outline-secondary" th:href="@{/equipamentos/{id}/editar(id=${e.id})}">Editar</a>
-              <form class="d-inline" method="post" th:action="@{/equipamentos/{id}/excluir(id=${e.id})}"
-                    onsubmit="return confirm('Excluir este equipamento?')">
-                <button class="btn btn-sm btn-outline-danger" type="submit">Excluir</button>
-              </form>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="alert alert-danger mb-0" th:if="${erro != null}" th:text="${erro}">
+      Algo deu errado.
     </div>
+
   </div>
 
-</main>
+  <!-- CONTEÚDO -->
+  <main class="container-xl py-4">
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="page-head">
+
+      <h1 class="h3">Equipamentos</h1>
+
+      <a class="btn btn-primary" th:href="@{/equipamentos/novo}">
+        Novo equipamento
+      </a>
+
+    </div>
+
+
+    <form class="row g-2 mb-3" method="get" th:action="@{/equipamentos}">
+
+      <div class="col-12 col-sm-8 col-md-4">
+        <input type="search" name="busca" class="form-control" placeholder="Buscar por marca, modelo, série ou cliente"
+          aria-label="Buscar equipamento" th:value="${busca}">
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <select name="tipo" class="form-select">
+          <option value="">Todos os tipos</option>
+
+          <option th:each="t : ${tipos}" th:value="${t}" th:text="${t}" th:selected="${tipoSelecionado == t}">
+            NOTEBOOK
+          </option>
+        </select>
+      </div>
+
+      <div class="col-auto">
+        <button class="btn btn-outline-secondary" type="submit">
+          Buscar
+        </button>
+      </div>
+
+    </form>
+
+    </div>
+
+    </form>
+
+    </div>
+
+    </div>
+
+    <!-- RESULTADO VAZIO -->
+    <div class="panel" th:if="${equipamentos.isEmpty()}">
+
+      <div class="empty">
+
+        <p class="fw-semibold mb-1" th:if="${busca == null and tipoSelecionado == null}">
+          Nenhum equipamento cadastrado
+        </p>
+
+        <p class="fw-semibold mb-1" th:if="${busca != null or tipoSelecionado != null}">
+          Nenhum equipamento encontrado
+        </p>
+
+        <p class="text-secondary" th:if="${busca == null and tipoSelecionado == null}">
+          Cadastre o aparelho e ligue ao cliente dono dele.
+        </p>
+
+        <p class="text-secondary" th:if="${busca != null or tipoSelecionado != null}">
+          Tente alterar os termos da pesquisa ou limpar os filtros.
+        </p>
+
+        <a class="btn btn-primary" th:if="${busca == null and tipoSelecionado == null}" th:href="@{/equipamentos/novo}">
+          Cadastrar equipamento
+        </a>
+
+        <a class="btn btn-outline-secondary" th:if="${busca != null or tipoSelecionado != null}"
+          th:href="@{/equipamentos}">
+          Limpar pesquisa
+        </a>
+
+      </div>
+
+    </div>
+
+    <!-- TABELA DE EQUIPAMENTOS -->
+    <div class="panel" th:unless="${equipamentos.isEmpty()}">
+
+      <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+          <thead>
+
+            <tr>
+              <th>Tipo</th>
+              <th>Marca e modelo</th>
+              <th class="d-none d-md-table-cell">Nº de série</th>
+              <th>Cliente</th>
+              <th class="text-end">Ações</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            <tr th:each="e : ${equipamentos}">
+
+              <td th:text="${e.tipo}">
+                NOTEBOOK
+              </td>
+
+              <td class="fw-semibold" th:text="${e.marca + ' ' + e.modelo}">
+                Dell Inspiron
+              </td>
+
+              <td class="d-none d-md-table-cell" th:text="${e.numeroSerie}">
+                ABC123
+              </td>
+
+              <td th:text="${e.cliente.nome}">
+                Maria Souza
+              </td>
+
+              <td class="text-end text-nowrap">
+
+                <a class="btn btn-sm btn-outline-secondary" th:href="@{/equipamentos/{id}/editar(id=${e.id})}">
+                  Editar
+                </a>
+
+                <form class="d-inline" method="post" th:action="@{/equipamentos/{id}/excluir(id=${e.id})}"
+                  onsubmit="return confirm('Excluir este equipamento?')">
+
+                  <button class="btn btn-sm btn-outline-danger" type="submit">
+                    Excluir
+                  </button>
+
+                </form>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+
 </html>
