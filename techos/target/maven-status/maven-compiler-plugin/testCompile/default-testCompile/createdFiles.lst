@@ -1,0 +1,4 @@
+br\com\bugnacio\techos\controller\ClienteControllerTest.class
+br\com\bugnacio\techos\service\ClienteServiceTest.class
+br\com\bugnacio\techos\TechosApplicationTests.class
+br\com\bugnacio\techos\model\ClienteValidationTest.class

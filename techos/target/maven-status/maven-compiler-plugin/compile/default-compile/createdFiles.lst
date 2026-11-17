@@ -1,0 +1,13 @@
+br\com\bugnacio\techos\controller\HomeController.class
+br\com\bugnacio\techos\repository\ClienteRepository.class
+br\com\bugnacio\techos\model\Cliente.class
+br\com\bugnacio\techos\service\ClienteService$TelefoneDuplicadoException.class
+br\com\bugnacio\techos\service\ClienteService.class
+br\com\bugnacio\techos\model\Equipamento.class
+br\com\bugnacio\techos\service\ClienteService$ClienteNaoEncontradoException.class
+br\com\bugnacio\techos\model\TipoEquipamento.class
+br\com\bugnacio\techos\controller\OsController.class
+br\com\bugnacio\techos\TechosApplication.class
+br\com\bugnacio\techos\repository\EquipamentoRepository.class
+br\com\bugnacio\techos\controller\EquipamentoController.class
+br\com\bugnacio\techos\controller\ClienteController.class

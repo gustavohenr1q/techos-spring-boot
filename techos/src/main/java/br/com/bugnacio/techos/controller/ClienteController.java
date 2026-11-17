@@ -1,147 +1,253 @@
+
 package br.com.bugnacio.techos.controller;
 
-import java.util.List;
+import br.com.bugnacio.techos.model.Cliente;
+import br.com.bugnacio.techos.service.ClienteService;
 
-import org.springframework.data.domain.Sort;
+import jakarta.validation.Valid;
+
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import br.com.bugnacio.techos.model.Cliente;
-import br.com.bugnacio.techos.repository.ClienteRepository;
-import jakarta.validation.Valid;
-
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
-// @Controller: bean do Spring, a recepcao dos pedidos de clientes.
 @Controller
-// @RequestMapping na classe: o comeco do endereco para TODOS os metodos daqui.
 @RequestMapping("/clientes")
 public class ClienteController {
 
-    // O controller precisa do respository para buscar os clientes no banco de
-    // dados.
-    private final ClienteRepository repo;
+    private final ClienteService service;
 
-    // Injeção de dependencia: o Spring vai criar o repository e passar para o
-    // controller.
-    public ClienteController(ClienteRepository repo) {
-        this.repo = repo;
+    // O Controller utiliza a camada Service.
+    public ClienteController(ClienteService service) {
+        this.service = service;
     }
 
-    // @GetMapping vazio = o proprio "/clientes".
-    // Endereco completo: http://localhost:8080/clientes
+    // Aceita somente os campos permitidos no formulário.
+    @InitBinder("cliente")
+    public void configurarCampos(WebDataBinder binder) {
+
+        binder.setAllowedFields(
+                "id",
+                "nome",
+                "telefone",
+                "email",
+                "cpf",
+                "cep",
+                "logradouro",
+                "numero",
+                "complemento",
+                "bairro",
+                "cidade",
+                "estado"
+        );
+
+        binder.registerCustomEditor(
+                String.class,
+                new StringTrimmerEditor(true)
+        );
+    }
+
+    // LISTAR E PESQUISAR
+
     @GetMapping
     public String listar(
-
-            @RequestParam(value = "busca", required = false) String busca,
+            @RequestParam(value = "busca", required = false)
+            String busca,
             Model model) {
 
-        if (busca != null && !busca.isBlank()) {
-            model.addAttribute("clientes", repo.findByNomeContainingIgnoreCase(busca));
+        String termo = busca == null ? "" : busca.trim();
 
-        } else {
-            model.addAttribute("clientes", repo.findAll(Sort.by("nome")));
-            
+        model.addAttribute(
+                "clientes",
+                service.listar(termo)
+        );
 
-        }
+        model.addAttribute("busca", termo);
 
-        model.addAttribute("busca", busca);
         return "clientes/lista";
-
     }
 
-    // Get /clientes/novo: mostra o formulário para criar um novo cliente.
+    // FORMULÁRIO DE CADASTRO
+
     @GetMapping("/novo")
     public String novo(Model model) {
+
         model.addAttribute("cliente", new Cliente());
 
         return "clientes/form";
     }
 
-    @PostMapping("/salvar")
-    public String salvar(@Valid Cliente cliente,
-                         BindingResult result,
-                         RedirectAttributes redirect) {
+    // SALVAR NOVO CLIENTE
 
-        
-        boolean jaExiste;
-        if (cliente.getId() == null) {
-            jaExiste = repo.existsByTelefone(cliente.getTelefone());
-        } else {
-            jaExiste = repo.existsByTelefoneAndIdNot(cliente.getTelefone(), cliente.getId());
+    @PostMapping("/salvar")
+    public String salvar(
+            @Valid @ModelAttribute("cliente") Cliente cliente,
+            BindingResult result,
+            RedirectAttributes redirect) {
+
+        if (result.hasErrors()) {
+            return "clientes/form";
         }
-        if (jaExiste) {
-            result.rejectValue("telefone","duplicado","Já existe um cliente com esse telefone.");
+
+        if (cliente.getId() != null) {
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Cadastro inválido. Um novo cliente não pode possuir ID."
+            );
+
+            return "redirect:/clientes";
+        }
+
+        try {
+
+            Cliente salvo = service.cadastrar(cliente);
+
+            redirect.addFlashAttribute(
+                    "mensagem",
+                    "Cliente " + salvo.getNome()
+                            + " cadastrado com sucesso!"
+            );
+
+            return "redirect:/clientes";
+
+        } catch (ClienteService.TelefoneDuplicadoException ex) {
+
+            result.rejectValue(
+                    "telefone",
+                    "duplicado",
+                    ex.getMessage()
+            );
+
+            return "clientes/form";
+        }
+    }
+
+    // FORMULÁRIO DE EDIÇÃO
+
+    @GetMapping("/{id}/editar")
+    public String editar(
+            @PathVariable Long id,
+            Model model,
+            RedirectAttributes redirect) {
+
+        try {
+
+            Cliente cliente = service.buscarPorId(id);
+
+            model.addAttribute("cliente", cliente);
+
+            return "clientes/form";
+
+        } catch (ClienteService.ClienteNaoEncontradoException ex) {
+
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Cliente não encontrado."
+            );
+
+            return "redirect:/clientes";
+        }
+    }
+
+    // ATUALIZAR CLIENTE
+
+    @PostMapping("/atualizar")
+    public String atualizar(
+            @Valid @ModelAttribute("cliente") Cliente cliente,
+            BindingResult result,
+            RedirectAttributes redirect) {
+
+        if (cliente.getId() == null) {
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Cliente não identificado para atualização."
+            );
+
+            return "redirect:/clientes";
         }
 
         if (result.hasErrors()) {
             return "clientes/form";
         }
 
-        repo.save(cliente);
+        try {
 
-        redirect.addFlashAttribute(
-                "mensagem",
-                "Cliente " + cliente.getNome() + " cadastrado com sucesso!");
+            Cliente atualizado = service.atualizar(
+                    cliente.getId(),
+                    cliente
+            );
 
-        return "redirect:/clientes";
+            redirect.addFlashAttribute(
+                    "mensagem",
+                    "Cliente " + atualizado.getNome()
+                            + " alterado com sucesso!"
+            );
+
+            return "redirect:/clientes";
+
+        } catch (ClienteService.TelefoneDuplicadoException ex) {
+
+            result.rejectValue(
+                    "telefone",
+                    "duplicado",
+                    ex.getMessage()
+            );
+
+            return "clientes/form";
+
+        } catch (ClienteService.ClienteNaoEncontradoException ex) {
+
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Cliente não encontrado."
+            );
+
+            return "redirect:/clientes";
+        }
     }
+
+    // EXCLUIR CLIENTE
 
     @PostMapping("/{id}/excluir")
-    public String excluir(@PathVariable Long id,
-            RedirectAttributes redirectAttributes) {
+    public String excluir(
+            @PathVariable Long id,
+            RedirectAttributes redirect) {
 
-        Cliente cliente = repo.findById(id).orElse(null);
+        try {
 
-        if (cliente == null) {
-            redirectAttributes.addFlashAttribute(
-                    "erro", "Cliente não encontrado!");
+            Cliente cliente = service.buscarPorId(id);
 
-            return "redirect:/clientes";
+            String nome = cliente.getNome();
+
+            service.excluir(id);
+
+            redirect.addFlashAttribute(
+                    "mensagem",
+                    "Cliente " + nome
+                            + " excluído com sucesso!"
+            );
+
+        } catch (ClienteService.ClienteNaoEncontradoException ex) {
+
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Cliente não encontrado."
+            );
+
+        } catch (DataIntegrityViolationException ex) {
+
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Não foi possível excluir o cliente. "
+                            + "Verifique se existem equipamentos "
+                            + "ou outros registros vinculados."
+            );
         }
-
-        String nome = cliente.getNome();
-
-        repo.delete(cliente);
-
-        redirectAttributes.addFlashAttribute(
-                "erro",
-                "Cliente " + nome + " excluído com sucesso!");
 
         return "redirect:/clientes";
     }
-
-    @GetMapping("/{id}/editar")
-    public String editar(@PathVariable Long id, Model model) {
-
-        Cliente cliente = repo.findById(id).orElse(null);
-
-        if (cliente == null) {
-            return "redirect:/clientes";
-        }
-
-        model.addAttribute("cliente", cliente);
-
-        return "clientes/form";
-    }
-
-    @PostMapping("/atualizar")
-    public String atualizar(Cliente cliente, RedirectAttributes redirect) {
-
-        repo.save(cliente);
-
-        redirect.addFlashAttribute(
-                "mensagem",
-                cliente.getNome() + " alterado com sucesso!");
-        return "redirect:/clientes";
-    }
-
 }
