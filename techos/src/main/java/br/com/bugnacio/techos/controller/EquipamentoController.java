@@ -3,223 +3,375 @@ package br.com.bugnacio.techos.controller;
 
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
+import br.com.bugnacio.techos.model.Cliente;
+import br.com.bugnacio.techos.model.Equipamento;
+import br.com.bugnacio.techos.model.TipoEquipamento;
+
+import br.com.bugnacio.techos.service.EquipamentoService;
+
+import jakarta.validation.ConstraintViolationException;
+
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import br.com.bugnacio.techos.model.Cliente;
-import br.com.bugnacio.techos.model.TipoEquipamento;
-import br.com.bugnacio.techos.model.Equipamento;
-import br.com.bugnacio.techos.model.TipoEquipamento;
-import br.com.bugnacio.techos.repository.ClienteRepository;
-import br.com.bugnacio.techos.repository.EquipamentoRepository;
-
-import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/equipamentos")
 public class EquipamentoController {
 
-    private final EquipamentoRepository repo;
-    private final ClienteRepository clienteRepo;
+    private final EquipamentoService service;
 
-    // Injeção de dependência.
-    public EquipamentoController(
-            EquipamentoRepository repo,
-            ClienteRepository clienteRepo) {
+    // INJEÇÃO DE DEPENDÊNCIA
 
-        this.repo = repo;
-        this.clienteRepo = clienteRepo;
+    public EquipamentoController(EquipamentoService service) {
+        this.service = service;
     }
 
-    // Prepara os dados necessários para os formulários.
+    // CAMPOS PERMITIDOS NO FORMULÁRIO
+
+    @InitBinder("equipamento")
+    public void configurarCampos(WebDataBinder binder) {
+
+        binder.setAllowedFields(
+                "id",
+                "tipo",
+                "marca",
+                "modelo",
+                "numeroSerie"
+        );
+
+        binder.registerCustomEditor(
+                String.class,
+                new StringTrimmerEditor(true)
+        );
+    }
+
+    // PREPARAR FORMULÁRIO
+
     private void prepararFormulario(Model model) {
 
-        List<Cliente> clientes = clienteRepo.findAll(Sort.by("nome"));
+        List<Cliente> clientes = service.listarClientes();
 
         model.addAttribute("clientes", clientes);
-        model.addAttribute("tipos", TipoEquipamento.values());
+
+        model.addAttribute(
+                "tipos",
+                TipoEquipamento.values()
+        );
     }
 
-    // Lista todos os equipamentos.
+    // RETORNAR AO FORMULÁRIO COM ERROS
+
+    private String formularioComErros(
+            Model model,
+            Long clienteId) {
+
+        prepararFormulario(model);
+
+        model.addAttribute(
+                "clienteIdSelecionado",
+                clienteId
+        );
+
+        return "equipamentos/form";
+    }
+
+    // LISTAR E PESQUISAR EQUIPAMENTOS
+
     @GetMapping
     public String listar(
+            @RequestParam(
+                    value = "busca",
+                    required = false
+            ) String busca,
 
-            @RequestParam(value = "busca", required = false) String busca,
-            @RequestParam(value = "tipo", required = false) TipoEquipamento tipo,
+            @RequestParam(
+                    value = "tipo",
+                    required = false
+            ) TipoEquipamento tipo,
+
             Model model) {
 
-        // Remove espaços desnecessários da pesquisa.
-        if (busca != null) {
-            busca = busca.trim();
+        String termo = busca == null || busca.isBlank()
+                ? null
+                : busca.trim();
 
-            if (busca.isBlank()) {
-                busca = null;
-            }
-        }
+        model.addAttribute(
+                "equipamentos",
+                service.listar(termo, tipo)
+        );
 
-        // Busca os equipamentos conforme os filtros informados.
-        List<Equipamento> equipamentos = repo.buscar(busca, tipo);
+        model.addAttribute("busca", termo);
 
-        model.addAttribute("equipamentos", equipamentos);
-        model.addAttribute("busca", busca);
-        model.addAttribute("tipoSelecionado", tipo);
-        model.addAttribute("tipos", TipoEquipamento.values());
+        model.addAttribute(
+                "tipoSelecionado",
+                tipo
+        );
+
+        model.addAttribute(
+                "tipos",
+                TipoEquipamento.values()
+        );
 
         return "equipamentos/lista";
     }
 
-    // Abre o formulário de cadastro.
+    // FORMULÁRIO DE NOVO EQUIPAMENTO
+
     @GetMapping("/novo")
     public String novo(Model model) {
 
-        model.addAttribute("equipamento", new Equipamento());
+        model.addAttribute(
+                "equipamento",
+                new Equipamento()
+        );
 
         prepararFormulario(model);
 
         return "equipamentos/form";
     }
 
+    // CADASTRAR OU ATUALIZAR EQUIPAMENTO
+
     @PostMapping("/salvar")
     public String salvar(
-            @Valid @ModelAttribute("equipamento") Equipamento equipamento,
+            @ModelAttribute("equipamento")
+            Equipamento equipamento,
+
             BindingResult result,
-            @RequestParam(value = "clienteId", required = false) Long clienteId,
+
+            @RequestParam(
+                    value = "clienteId",
+                    required = false
+            ) Long clienteId,
+
             Model model,
             RedirectAttributes redirect) {
 
-        // 1. Verifica se um cliente foi selecionado.
+        // Verifica a seleção do cliente.
+
         if (clienteId == null) {
 
             result.rejectValue(
                     "cliente",
                     "obrigatorio",
-                    "É obrigatório selecionar um cliente.");
-
-        } else {
-
-            // 2. Verifica se o cliente selecionado realmente existe.
-            Cliente cliente = clienteRepo.findById(clienteId).orElse(null);
-
-            if (cliente == null) {
-
-                result.rejectValue(
-                        "cliente",
-                        "invalido",
-                        "O cliente selecionado não existe.");
-
-            } else {
-
-                equipamento.setCliente(cliente);
-            }
+                    "Selecione um cliente."
+            );
         }
 
-        // 3. Verifica se o número de série já está cadastrado.
-        String numeroSerie = equipamento.getNumeroSerie();
+        // Erros de conversão ou campos inválidos
+        // identificados durante o recebimento.
 
-        if (numeroSerie != null && !numeroSerie.isBlank()) {
-
-            boolean jaExiste;
-
-            if (equipamento.getId() == null) {
-
-                jaExiste = repo.existsByNumeroSerie(numeroSerie);
-
-            } else {
-
-                jaExiste = repo.existsByNumeroSerieAndIdNot(
-                        numeroSerie,
-                        equipamento.getId());
-            }
-
-            if (jaExiste) {
-
-                result.rejectValue(
-                        "numeroSerie",
-                        "duplicado",
-                        "Já existe um equipamento com esse número de série.");
-            }
-        }
-
-        // 4. Se houver erros, retorna ao formulário.
         if (result.hasErrors()) {
-
-            prepararFormulario(model);
-
-            // Mantém a seleção do cliente no formulário.
-            model.addAttribute("clienteIdSelecionado", clienteId);
-
-            return "equipamentos/form";
+            return formularioComErros(model, clienteId);
         }
 
-        // 5. Salva o equipamento.
+        // Identifica se é cadastro ou edição.
+
         boolean editando = equipamento.getId() != null;
 
-        repo.save(equipamento);
+        try {
 
-        redirect.addFlashAttribute(
-                "mensagem",
-                editando
-                        ? "Equipamento " + equipamento.getModelo() + " alterado com sucesso!"
-                        : "Equipamento " + equipamento.getModelo() + " cadastrado com sucesso!");
+            Equipamento salvo;
 
-        return "redirect:/equipamentos";
-    }
+            if (editando) {
 
-    // Exclui um equipamento.
-    @PostMapping("/{id}/excluir")
-    public String excluir(
-            @PathVariable Long id,
-            RedirectAttributes redirectAttributes) {
+                salvo = service.atualizar(
+                        equipamento.getId(),
+                        equipamento,
+                        clienteId
+                );
 
-        Equipamento equipamento = repo.findById(id).orElse(null);
+            } else {
 
-        if (equipamento == null) {
+                salvo = service.cadastrar(
+                        equipamento,
+                        clienteId
+                );
+            }
 
-            redirectAttributes.addFlashAttribute(
-                    "erro",
-                    "Equipamento não encontrado!");
+            redirect.addFlashAttribute(
+                    "mensagem",
+                    "Equipamento "
+                            + salvo.getModelo()
+                            + (editando
+                                ? " alterado com sucesso!"
+                                : " cadastrado com sucesso!")
+            );
 
             return "redirect:/equipamentos";
+
+        } catch (
+                EquipamentoService.NumeroSerieDuplicadoException ex
+        ) {
+
+            result.rejectValue(
+                    "numeroSerie",
+                    "duplicado",
+                    ex.getMessage()
+            );
+
+            return formularioComErros(model, clienteId);
+
+        } catch (
+                EquipamentoService.ClienteNaoEncontradoException ex
+        ) {
+
+            result.rejectValue(
+                    "cliente",
+                    "invalido",
+                    "O cliente selecionado não existe."
+            );
+
+            return formularioComErros(model, clienteId);
+
+        } catch (ConstraintViolationException ex) {
+
+            // Transforma erros do Service em mensagens
+            // para os campos do formulário.
+
+            ex.getConstraintViolations().forEach(violacao -> {
+
+                String campo = violacao
+                        .getPropertyPath()
+                        .toString();
+
+                switch (campo) {
+
+                    case "tipo", "marca", "modelo",
+                         "numeroSerie", "cliente" -> {
+
+                        if (!result.hasFieldErrors(campo)) {
+                            result.rejectValue(
+                                    campo,
+                                    "invalido",
+                                    violacao.getMessage()
+                            );
+                        }
+                    }
+
+                    default -> result.reject(
+                            "dados.invalidos",
+                            "Existem dados inválidos no equipamento."
+                    );
+                }
+            });
+
+            return formularioComErros(model, clienteId);
+
+        } catch (
+                EquipamentoService.EquipamentoNaoEncontradoException ex
+        ) {
+
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Equipamento não encontrado para atualização."
+            );
+
+            return "redirect:/equipamentos";
+
+        } catch (DataIntegrityViolationException ex) {
+
+            model.addAttribute(
+                    "erro",
+                    "Não foi possível salvar o equipamento. "
+                            + "Verifique os dados e possíveis registros duplicados."
+            );
+
+            return formularioComErros(model, clienteId);
+
+        } catch (IllegalArgumentException ex) {
+
+            model.addAttribute(
+                    "erro",
+                    "Não foi possível salvar o equipamento. "
+                            + "Verifique os dados informados."
+            );
+
+            return formularioComErros(model, clienteId);
         }
-
-        String modelo = equipamento.getModelo();
-
-        repo.delete(equipamento);
-
-        redirectAttributes.addFlashAttribute(
-                "erro",
-                "Equipamento " + modelo + " excluído!");
-
-        return "redirect:/equipamentos";
     }
 
-    // Busca um equipamento para edição.
+    // FORMULÁRIO DE EDIÇÃO
+
     @GetMapping("/{id}/editar")
     public String editar(
             @PathVariable Long id,
-            Model model) {
+            Model model,
+            RedirectAttributes redirect) {
 
-        Equipamento equipamento = repo.findById(id).orElse(null);
+        try {
 
-        if (equipamento == null) {
+            Equipamento equipamento =
+                    service.buscarPorId(id);
+
+            model.addAttribute(
+                    "equipamento",
+                    equipamento
+            );
+
+            prepararFormulario(model);
+
+            return "equipamentos/form";
+
+        } catch (
+                EquipamentoService.EquipamentoNaoEncontradoException ex
+        ) {
+
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Equipamento não encontrado."
+            );
 
             return "redirect:/equipamentos";
         }
-
-        model.addAttribute("equipamento", equipamento);
-
-        prepararFormulario(model);
-
-        return "equipamentos/form";
     }
 
+    // EXCLUIR EQUIPAMENTO
+
+    @PostMapping("/{id}/excluir")
+    public String excluir(
+            @PathVariable Long id,
+            RedirectAttributes redirect) {
+
+        try {
+
+            Equipamento equipamento =
+                    service.buscarPorId(id);
+
+            String modelo = equipamento.getModelo();
+
+            service.excluir(id);
+
+            redirect.addFlashAttribute(
+                    "mensagem",
+                    "Equipamento " + modelo
+                            + " excluído com sucesso!"
+            );
+
+        } catch (
+                EquipamentoService.EquipamentoNaoEncontradoException ex
+        ) {
+
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Equipamento não encontrado."
+            );
+
+        } catch (DataIntegrityViolationException ex) {
+
+            redirect.addFlashAttribute(
+                    "erro",
+                    "Não foi possível excluir o equipamento. "
+                            + "Existem registros ou fotografias vinculados."
+            );
+        }
+
+        return "redirect:/equipamentos";
+    }
 }

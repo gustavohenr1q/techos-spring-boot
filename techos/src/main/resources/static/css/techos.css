@@ -49,6 +49,27 @@ a {
   gap: .55rem;
 }
 
+/* LOGO ORIGINAL TECHOS - FUNDO VERDE NA LETRA T */
+.navbar-techos .navbar-brand .brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  background-color: var(--signal);
+  color: #FFFFFF;
+
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
 .navbar-techos .nav-link {
   padding: .65rem .9rem;
   border-bottom: 2px solid transparent;

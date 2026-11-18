@@ -1,4 +1,9 @@
+br\com\bugnacio\techos\service\FotoStorageServiceTest.class
+br\com\bugnacio\techos\model\ClienteValidationTest.class
 br\com\bugnacio\techos\controller\ClienteControllerTest.class
 br\com\bugnacio\techos\service\ClienteServiceTest.class
+br\com\bugnacio\techos\service\EquipamentoServiceTest.class
 br\com\bugnacio\techos\TechosApplicationTests.class
-br\com\bugnacio\techos\model\ClienteValidationTest.class
+br\com\bugnacio\techos\service\FotosEquipamentoServiceTest.class
+br\com\bugnacio\techos\controller\EquipamentoControllerTest.class
+br\com\bugnacio\techos\model\EquipamentoValidationTest.class

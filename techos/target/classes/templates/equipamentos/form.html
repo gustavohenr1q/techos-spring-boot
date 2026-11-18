@@ -7,51 +7,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Equipamento · TechOS</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../static/css/techos.css"
-          th:href="@{/css/techos.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/techos.css}">
 </head>
 
 <body>
 
-<!-- MENU -->
-<nav class="navbar navbar-expand-lg navbar-techos sticky-top" data-bs-theme="dark">
+<!-- MENU ORIGINAL -->
+<nav class="navbar navbar-expand-lg navbar-techos sticky-top"
+     data-bs-theme="dark">
     <div class="container-xl">
 
-        <a class="navbar-brand" href="#" th:href="@{/}">
+        <a class="navbar-brand" th:href="@{/}">
             <span class="brand-mark">T</span>TechOS
         </a>
 
-        <button class="navbar-toggler" type="button"
+        <button class="navbar-toggler"
+                type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal"
+                aria-expanded="false"
                 aria-label="Abrir menu">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="menuPrincipal">
             <ul class="navbar-nav ms-lg-3">
-
                 <li class="nav-item">
-                    <a class="nav-link" href="#" th:href="@{/}">Painel</a>
+                    <a class="nav-link" th:href="@{/}">Painel</a>
                 </li>
-
                 <li class="nav-item">
-                    <a class="nav-link" href="#" th:href="@{/clientes}">Clientes</a>
+                    <a class="nav-link"
+                       th:href="@{/clientes}">Clientes</a>
                 </li>
-
                 <li class="nav-item">
-                    <a class="nav-link active" href="#" th:href="@{/equipamentos}">
-                        Equipamentos
-                    </a>
+                    <a class="nav-link active"
+                       aria-current="page"
+                       th:href="@{/equipamentos}">Equipamentos</a>
                 </li>
-
                 <li class="nav-item">
-                    <a class="nav-link" href="#" th:href="@{/os}">
-                        Ordens de serviço
-                    </a>
+                    <a class="nav-link"
+                       th:href="@{/os}">Ordens de serviço</a>
                 </li>
-
             </ul>
         </div>
     </div>
@@ -91,7 +91,7 @@
               th:action="@{/equipamentos/salvar}"
               th:object="${equipamento}">
 
-            <!-- ID: necessário para identificar uma edição -->
+            <!-- ID DO EQUIPAMENTO -->
             <input type="hidden" th:field="*{id}">
 
             <!-- CLIENTE -->
@@ -103,20 +103,22 @@
 
                 <select id="cliente"
                         name="clienteId"
-                        class="form-select">
+                        class="form-select"
+                        th:classappend="${#fields.hasErrors('cliente')} ? 'is-invalid' : ''"
+                        required>
 
                     <option value="">Escolha o cliente</option>
 
                     <option th:each="c : ${clientes}"
                             th:value="${c.id}"
                             th:text="${c.nome}"
-                            th:selected="${equipamento.cliente != null and equipamento.cliente.id == c.id}">
+                            th:selected="${clienteIdSelecionado != null ? clienteIdSelecionado == c.id : (equipamento.cliente != null and equipamento.cliente.id == c.id)}">
                         Maria Souza
                     </option>
 
                 </select>
 
-                <div class="text-danger small"
+                <div class="invalid-feedback"
                      th:if="${#fields.hasErrors('cliente')}"
                      th:errors="*{cliente}">
                     Selecione um cliente válido.
@@ -127,6 +129,7 @@
             <!-- TIPO E MARCA -->
             <div class="row g-3 mb-3">
 
+                <!-- TIPO -->
                 <div class="col-12 col-sm-5">
 
                     <label class="form-label" for="tipo">
@@ -136,7 +139,8 @@
                     <select id="tipo"
                             class="form-select"
                             th:field="*{tipo}"
-                            th:errorclass="is-invalid">
+                            th:errorclass="is-invalid"
+                            required>
 
                         <option value="">Selecione o tipo</option>
 
@@ -155,6 +159,7 @@
 
                 </div>
 
+                <!-- MARCA -->
                 <div class="col-12 col-sm-7">
 
                     <label class="form-label" for="marca">
@@ -165,7 +170,9 @@
                            id="marca"
                            class="form-control"
                            th:field="*{marca}"
-                           th:errorclass="is-invalid">
+                           th:errorclass="is-invalid"
+                           maxlength="255"
+                           required>
 
                     <div class="invalid-feedback"
                          th:errors="*{marca}">
@@ -179,6 +186,7 @@
             <!-- MODELO E NÚMERO DE SÉRIE -->
             <div class="row g-3 mb-4">
 
+                <!-- MODELO -->
                 <div class="col-12 col-sm-6">
 
                     <label class="form-label" for="modelo">
@@ -189,7 +197,9 @@
                            id="modelo"
                            class="form-control"
                            th:field="*{modelo}"
-                           th:errorclass="is-invalid">
+                           th:errorclass="is-invalid"
+                           maxlength="255"
+                           required>
 
                     <div class="invalid-feedback"
                          th:errors="*{modelo}">
@@ -198,6 +208,7 @@
 
                 </div>
 
+                <!-- NÚMERO DE SÉRIE -->
                 <div class="col-12 col-sm-6">
 
                     <label class="form-label" for="numeroSerie">
@@ -208,7 +219,9 @@
                            id="numeroSerie"
                            class="form-control"
                            th:field="*{numeroSerie}"
-                           th:errorclass="is-invalid">
+                           th:errorclass="is-invalid"
+                           maxlength="255"
+                           required>
 
                     <div class="invalid-feedback"
                          th:errors="*{numeroSerie}">
@@ -220,15 +233,24 @@
             </div>
 
             <!-- BOTÕES -->
-            <div class="d-flex gap-2">
+            <div class="d-flex flex-wrap gap-2">
 
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary"
+                        type="submit"
+                        th:text="${equipamento.id == null} ? 'Cadastrar equipamento' : 'Salvar alterações'">
                     Salvar equipamento
                 </button>
 
                 <a class="btn btn-outline-secondary"
                    th:href="@{/equipamentos}">
                     Cancelar
+                </a>
+
+                <!-- FOTOS DE ENTRADA E SAÍDA -->
+                <a class="btn btn-outline-secondary"
+                   th:if="${equipamento.id != null}"
+                   th:href="@{/equipamentos/{id}/fotos(id=${equipamento.id})}">
+                    Fotos de entrada e saída
                 </a>
 
             </div>
