@@ -1,9 +1,13 @@
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\controller\ClienteControllerTest.java
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\controller\EquipamentoControllerTest.java
+C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\controller\OrdemServicoControllerTest.java
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\model\ClienteValidationTest.java
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\model\EquipamentoValidationTest.java
+C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\model\OrdemServicoValidationTest.java
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\service\ClienteServiceTest.java
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\service\EquipamentoServiceTest.java
+C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\service\FluxoOrdemServicoServiceTest.java
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\service\FotosEquipamentoServiceTest.java
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\service\FotoStorageServiceTest.java
+C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\service\OrdemServicoServiceTest.java
 C:\Users\gustavo.hrsantos7\Documents\techos-spring-boot\techos\src\test\java\br\com\bugnacio\techos\TechosApplicationTests.java

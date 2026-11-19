@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nova ordem de serviço · TechOS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/techos.css}">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-techos sticky-top" data-bs-theme="dark">
+        <div class="container-xl"><a class="navbar-brand" th:href="@{/}"><span class="brand-mark">T</span>TechOS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menu"><span
+                    class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="menuPrincipal">
+                <ul class="navbar-nav ms-lg-3">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/}">Painel</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/clientes}">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/equipamentos}">Equipamentos</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page"
+                            th:href="@{/ordens-servico}">Ordens de serviço</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-xl pt-3">
+        <div th:if="${mensagem != null}" class="alert alert-success mb-0" role="status" th:text="${mensagem}"></div>
+        <div th:if="${erro != null}" class="alert alert-danger mb-0" role="alert" th:text="${erro}"></div>
+    </div>
+    <main class="container-xl py-4">
+        <div class="page-head mb-4">
+            <div>
+                <h1 class="h3 mb-1">Nova ordem de serviço</h1>
+                <p class="text-secondary mb-0">Registre o recebimento e o problema relatado.</p>
+            </div>
+        </div>
+        <div class="panel" style="max-width:860px">
+            <form class="panel-body" method="post" th:action="@{/ordens-servico/salvar}" th:object="${form}" novalidate>
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                    <div th:each="e : ${#fields.globalErrors()}" th:text="${e}">Erro ao salvar</div>
+                </div>
+                <h2 class="h5 mb-3">Equipamento e cliente</h2>
+                <div class="mb-3"><label for="equipamentoId" class="form-label">Equipamento *</label><select
+                        id="equipamentoId" class="form-select" th:field="*{equipamentoId}" th:errorclass="is-invalid"
+                        required>
+                        <option value="">Selecione um equipamento</option>
+                        <option th:each="e : ${equipamentos}" th:value="${e.id}"
+                            th:text="${e.marca + ' ' + e.modelo + ' — Série: ' + e.numeroSerie + ' — Cliente: ' + e.cliente.nome}">
+                            Equipamento</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{equipamentoId}"></div>
+                    <div class="form-text">O cliente será preenchido automaticamente a partir do equipamento.</div>
+                </div>
+                <div th:if="${#lists.isEmpty(equipamentos)}" class="alert alert-warning">Antes de abrir uma OS, <a
+                        class="alert-link" th:href="@{/equipamentos/novo}">cadastre um equipamento</a>.</div>
+                <hr class="my-4">
+                <h2 class="h5 mb-3">Recebimento</h2>
+                <div class="mb-3"><label for="defeitoRelatado" class="form-label">Defeito relatado *</label><textarea
+                        id="defeitoRelatado" class="form-control" rows="4" maxlength="4000" required
+                        th:field="*{defeitoRelatado}" th:errorclass="is-invalid"
+                        placeholder="Descreva o problema informado pelo cliente."></textarea>
+                    <div class="invalid-feedback" th:errors="*{defeitoRelatado}"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6"><label for="acessoriosRecebidos" class="form-label">Acessórios
+                            recebidos</label><textarea id="acessoriosRecebidos" class="form-control" rows="3"
+                            maxlength="2000" th:field="*{acessoriosRecebidos}" th:errorclass="is-invalid"
+                            placeholder="Ex.: carregador, cabo, capa."></textarea>
+                        <div class="invalid-feedback" th:errors="*{acessoriosRecebidos}"></div>
+                    </div>
+                    <div class="col-12 col-md-6"><label for="estadoConservacao" class="form-label">Estado de
+                            conservação</label><textarea id="estadoConservacao" class="form-control" rows="3"
+                            maxlength="2000" th:field="*{estadoConservacao}" th:errorclass="is-invalid"
+                            placeholder="Ex.: riscos, trincas e marcas de uso."></textarea>
+                        <div class="invalid-feedback" th:errors="*{estadoConservacao}"></div>
+                    </div>
+                    <div class="col-12 col-md-6"><label for="dataPrevistaEntrega" class="form-label">Previsão de
+                            entrega</label><input type="date" id="dataPrevistaEntrega" class="form-control"
+                            th:field="*{dataPrevistaEntrega}" th:errorclass="is-invalid">
+                        <div class="invalid-feedback" th:errors="*{dataPrevistaEntrega}"></div>
+                        <div class="form-text">Opcional. Pode ser revista durante o atendimento.</div>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <div class="d-flex flex-wrap gap-2"><button class="btn btn-primary" type="submit"
+                        th:disabled="${#lists.isEmpty(equipamentos)}">Abrir ordem de serviço</button><a
+                        class="btn btn-outline-secondary" th:href="@{/ordens-servico}">Cancelar</a></div>
+            </form>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
